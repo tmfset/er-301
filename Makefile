@@ -35,6 +35,9 @@ core:
 teletype:
 	+$(MAKE) -f scripts/teletype.mk
 
+example:
+	+$(MAKE) -f scripts/example.mk
+
 core-clean:
 	+$(MAKE) -f scripts/core.mk clean
 
