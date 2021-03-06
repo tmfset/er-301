@@ -12,13 +12,14 @@ namespace example {
 #ifndef SWIGLUA
     virtual void process();
     od::Inlet mGateInput{"Gate"};
+    od::Inlet mLoopInput{"Loop"};
     od::Inlet mAttack{"Attack"};
     od::Inlet mRelease{"Release"};
     od::Outlet mOutput{"Out"};
 #endif
 
     private:
-      float next(float sustain);
+      float next(float currentGate, float currentLoop);
 
       int mStage = 0;
 

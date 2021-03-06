@@ -4,6 +4,7 @@ local Class = require "Base.Class"
 local Unit = require "Unit"
 local GainBias = require "Unit.ViewControl.GainBias"
 local InputGate = require "Unit.ViewControl.InputGate"
+local Gate = require "Unit.ViewControl.Gate"
 local Encoder = require "Encoder"
 
 local AR = Class {}
@@ -26,6 +27,8 @@ end
 function AR:loadMonoGraph()
   local gate = self:addObject("gate", app.Comparator())
   gate:setGateMode()
+  local loop = self:addObject("loop", app.Comparator())
+  loop:setToggleMode()
   local ar = self:addObject("ar", libexample.AR())
   local attack = self:addObject("attack", app.GainBias())
   local release = self:addObject("release", app.GainBias())
@@ -34,6 +37,7 @@ function AR:loadMonoGraph()
 
   connect(self, "In1", gate, "In")
   connect(gate, "Out", ar, "Gate")
+  connect(loop, "Out", ar, "Loop")
   connect(ar, "Out", self, "Out1")
 
   connect(attack, "Out", ar, "Attack")
@@ -42,6 +46,7 @@ function AR:loadMonoGraph()
   connect(attack, "Out", attackRange, "In")
   connect(release, "Out", releaseRange, "In")
 
+  self:addMonoBranch("loop", loop, "In", loop, "Out")
   self:addMonoBranch("attack", attack, "In", attack, "Out")
   self:addMonoBranch("release", release, "In", release, "Out")
 end
@@ -54,6 +59,7 @@ end
 local views = {
   expanded = {
     "input",
+    "loop",
     "attack",
     "release"
   },
@@ -67,6 +73,13 @@ function AR:onLoadViews(objects, branches)
     button = "input",
     description = "Unit Input",
     comparator = objects.gate
+  }
+
+  controls.loop = Gate {
+    button = "loop",
+    description = "Loop",
+    branch = branches.loop,
+    comparator = objects.loop
   }
 
   controls.attack = GainBias {

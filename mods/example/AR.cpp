@@ -8,6 +8,7 @@ namespace example {
 
   AR::AR() {
     addInput(mGateInput);
+    addInput(mLoopInput);
     addInput(mAttack);
     addInput(mRelease);
     addOutput(mOutput);
@@ -20,6 +21,7 @@ namespace example {
 
   void AR::process() {
     float *gate    = mGateInput.buffer();
+    float *loop    = mLoopInput.buffer();
     float *attack  = mAttack.buffer();
     float *release = mRelease.buffer();
     float *out     = mOutput.buffer();
@@ -28,14 +30,14 @@ namespace example {
     mReleasePhaseChange = globalConfig.samplePeriod / MAX(0.0001f, release[0]);
 
     for (int i = 0; i < FRAMELENGTH; i++) {
-      out[i] = next(gate[i]);
+      out[i] = next(gate[i], loop[i]);
     }
   }
 
-  inline float AR::next(float currentGate) {
+  inline float AR::next(float currentGate, float currentLoop) {
     switch (mStage) {
       case 0:
-        if (currentGate > 0.5f) {
+        if (currentGate > 0.5f || currentLoop > 0.5f) {
           mStage   = 1;
           mPhase   = 0.0f;
           mCapture = mCurrentValue;
@@ -73,6 +75,10 @@ namespace example {
 
           // Force to zero, possible discontinuity
           mCurrentValue = 0.0f;
+
+          if (currentLoop > 0.5f) {
+            mStage = 1;
+          }
         }
         break;
     }
