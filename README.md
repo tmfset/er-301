@@ -241,6 +241,7 @@ So for example, if I execute the following make command:
 make core PROFILE=debug ARCH=linux
 ```
 
+
 Then the build outputs will appear in the ```debug/linux``` directory of the project root.  Generally, the default profile is **testing** and the default architecture is determined by your OS (`uname -s`).  See the [top-level Makefile](Makefile) for more details.
 
 ## Glossary
